@@ -41,7 +41,10 @@ public class Application {
         System.out.println("\nAvailable converters:");
         int i = 1;
         for (CurrencyConverter converter : loader) {
-            System.out.println(i + ". " + converter.getClass().getSimpleName());
+            String converterName = converter.getClass().getSimpleName();
+            converterName = converterName.replace("To", " > ");
+            converterName = converterName.replace("Converter", "");
+            System.out.println(i + ". " + converterName);
             i++;
         }
         System.out.println("0. Exit");
@@ -81,7 +84,7 @@ public class Application {
     }
 
     private static void convertAmount(CurrencyConverter chosenConverter, Scanner scanner) {
-        System.out.print("\nEnter amount to convert: ");
+        System.out.print("Enter amount to convert: ");
         double amount = scanner.nextDouble();
         double convertedAmount = chosenConverter.convert(amount);
         System.out.println("Converted amount: " + retrieveCurrencySymbol(chosenConverter) + convertedAmount);
