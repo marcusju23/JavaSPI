@@ -1,5 +1,6 @@
 package org.example.converter;
 
+@ConverterName("Dollar > Euro")
 public class DollarToEuroConverter implements CurrencyConverter {
     @Override
     public double convert(double amount) {
