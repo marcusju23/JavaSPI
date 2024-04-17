@@ -1,5 +1,6 @@
 package org.example;
 
+import org.example.converter.ConverterName;
 import org.example.converter.CurrencyConverter;
 import org.example.converter.DollarToEuroConverter;
 import org.example.converter.EuroToDollarConverter;
@@ -27,7 +28,7 @@ public class Application {
             } else {
                 CurrencyConverter chosenConverter = findConverter(loader, choice);
                 if (chosenConverter != null) {
-                    convertAmount(chosenConverter, scanner);
+                    convertAmount(chosenConverter);
                 } else {
                     System.out.println("Invalid choice.");
                 }
@@ -38,14 +39,14 @@ public class Application {
     }
 
     private static void printAvailableConverters(ServiceLoader<CurrencyConverter> loader) {
-        System.out.println("\nAvailable converters:");
+        System.out.println("Available converters:");
         int i = 1;
         for (CurrencyConverter converter : loader) {
-            String converterName = converter.getClass().getSimpleName();
-            converterName = converterName.replace("To", " > ");
-            converterName = converterName.replace("Converter", "");
-            System.out.println(i + ". " + converterName);
-            i++;
+            ConverterName annotation = converter.getClass().getAnnotation(ConverterName.class);
+            if (annotation != null) {
+                System.out.println(i + ". " + annotation.value());
+                i++;
+            }
         }
         System.out.println("0. Exit");
     }
@@ -75,7 +76,8 @@ public class Application {
     private static CurrencyConverter findConverter(ServiceLoader<CurrencyConverter> loader, int choice) {
         int i = 1;
         for (CurrencyConverter converter : loader) {
-            if (i == choice) {
+            ConverterName annotation = converter.getClass().getAnnotation(ConverterName.class);
+            if (annotation != null && i == choice) {
                 return converter;
             }
             i++;
@@ -83,7 +85,7 @@ public class Application {
         return null;
     }
 
-    private static void convertAmount(CurrencyConverter chosenConverter, Scanner scanner) {
+    private static void convertAmount(CurrencyConverter chosenConverter) {
         System.out.print("Enter amount to convert: ");
         double amount = scanner.nextDouble();
         double convertedAmount = chosenConverter.convert(amount);
