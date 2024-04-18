@@ -11,9 +11,9 @@ import java.util.ServiceLoader;
 
 public class Application {
 
+    static Scanner sc = new Scanner(System.in);
     private static final String DOLLAR_SYMBOL = "$";
     private static final String EURO_SYMBOL = "€";
-    static Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
         ServiceLoader<CurrencyConverter> loader = ServiceLoader.load(CurrencyConverter.class);
@@ -34,11 +34,9 @@ public class Application {
                 }
             }
         }
-
-        scanner.close();
     }
 
-    private static void printAvailableConverters(ServiceLoader<CurrencyConverter> loader) {
+    public static void printAvailableConverters(ServiceLoader<CurrencyConverter> loader) {
         System.out.println("Available converters:");
         int i = 1;
         for (CurrencyConverter converter : loader) {
@@ -73,7 +71,7 @@ public class Application {
         return choice;
     }
 
-    private static CurrencyConverter findConverter(ServiceLoader<CurrencyConverter> loader, int choice) {
+    public static CurrencyConverter findConverter(ServiceLoader<CurrencyConverter> loader, int choice) {
         int i = 1;
         for (CurrencyConverter converter : loader) {
             ConverterName annotation = converter.getClass().getAnnotation(ConverterName.class);
@@ -86,24 +84,33 @@ public class Application {
     }
 
     private static void convertAmount(CurrencyConverter chosenConverter) {
-        System.out.print("Enter amount to convert: ");
-        double amount = scanner.nextDouble();
-        double convertedAmount = chosenConverter.convert(amount);
-        System.out.println("Converted amount: " + retrieveCurrencySymbol(chosenConverter) + convertedAmount);
+        boolean validInput = false;
+        while (!validInput) {
+            try {
+                System.out.print("Enter amount to convert: ");
+                double amount = sc.nextDouble();
+                double convertedAmount = chosenConverter.convert(amount);
+                System.out.println("Converted amount: " + retrieveCurrencySymbol(chosenConverter) + convertedAmount);
+                validInput = true;
+            } catch (InputMismatchException e) {
+                System.out.println("Invalid input. Please enter a valid number.");
+                sc.next();
+            }
+        }
         pressEnterToContinue();
     }
 
-    private static String retrieveCurrencySymbol(CurrencyConverter converter) {
+    public static String retrieveCurrencySymbol(CurrencyConverter converter) {
         if (converter instanceof EuroToDollarConverter) {
-            return EURO_SYMBOL;
-        } else if (converter instanceof DollarToEuroConverter) {
             return DOLLAR_SYMBOL;
+        } else if (converter instanceof DollarToEuroConverter) {
+            return EURO_SYMBOL;
         }
         return "";
     }
 
     private static void pressEnterToContinue() {
-        System.out.println("\nPress Enter to continue...");
+        System.out.println("Press Enter to continue...");
         try {
             System.in.read();
         } catch (Exception e) {
